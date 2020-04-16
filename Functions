@@ -1,0 +1,191 @@
+import nltk
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+from nltk.stem import PorterStemmer
+from nltk.tokenize import sent_tokenize, word_tokenize
+from nltk.corpus import state_union
+from nltk.tokenize import PunktSentenceTokenizer
+from nltk.stem import WordNetLemmatizer
+import random
+from nltk.corpus import movie_reviews
+def tokenize():# seperation of sentence to word. we can use word_tokenize(xyz) for word and sent_word(xyz) to sentence
+
+
+    EXAMPLE_TEXT = "Hello Mr. Smith, how are you doing today? The weather is great, and Python is awesome. The sky is pinkish-blue. You shouldn't eat cardboard."
+
+    print(sent_tokenize(EXAMPLE_TEXT))
+
+
+def stopword(): #noise hatanei kei liye
+
+    example_sent = "Hi i am good . How are you."
+
+    stop_words = set(stopwords.words('english'))
+
+    word_tokens = word_tokenize(example_sent)
+
+    filtered_sentence = [w for w in word_tokens if not w in stop_words]
+
+    filtered_sentence = []
+
+    for w in word_tokens:
+        if w not in stop_words:
+            filtered_sentence.append(w)
+
+    print(word_tokens)
+    print(filtered_sentence)
+
+
+def steming():  # same word key meaning koi ek word mei bata hai jese running and run or ran
+    ps = PorterStemmer()
+    new_text = "I was thinking to ride.but after thinking i thought of not to ride. I think that was right for riding"
+    words = word_tokenize(new_text)
+
+    for w in words:
+        print(ps.stem(w))
+
+def tagging(): # yeh noun, adjective bata ta hai
+    EXAMPLE_TEXT = "Hello my name is John i am a student of university of petroleum and energy studies doing Btech in computer science enginering with specialition in business analytics and optemization."
+    train_text = state_union.raw("2005-GWBush.txt")
+    custom_sent_tokenizer = PunktSentenceTokenizer(train_text)
+    tokenized = custom_sent_tokenizer.tokenize(EXAMPLE_TEXT)
+
+    def process_content():
+        try:
+            for i in tokenized[:5]:
+                words = nltk.word_tokenize(i)
+                tagged = nltk.pos_tag(words)
+                print(tagged)
+
+        except Exception as e:
+          print(str(e))
+    process_content()
+
+def lemmatize(): #cats become cats and geese become goose. similar like steming but used in a real world.
+
+
+    lemmatizer = WordNetLemmatizer()
+
+    print(lemmatizer.lemmatize("cats"))
+    print(lemmatizer.lemmatize("cacti"))
+    print(lemmatizer.lemmatize("geese"))
+    print(lemmatizer.lemmatize("rocks"))
+    print(lemmatizer.lemmatize("python"))
+    print(lemmatizer.lemmatize("better", pos="a"))
+    print(lemmatizer.lemmatize("best", pos="a"))
+    print(lemmatizer.lemmatize("run"))
+    print(lemmatizer.lemmatize("run", 'v'))
+
+def abs() :
+     document = [(list(movie_reviews.words(fileid)),category)
+                for category in movie_reviews.categories()
+                for fileid in movie_reviews.fileids(category)]
+
+     random.shuffle(document)
+     all_words = []
+     for w in movie_reviews.words():
+         all_words.append(w.lower())
+     all_words = nltk.FreqDist(all_words)
+     word_features = list(all_words.key(200))
+     def find_features(document):
+         words = set(document)
+         features = {}
+         for w in word_features:
+             features[w] = (w in words)
+         return features
+
+     print((find_features(movie_reviews.word('neg/cv000_29416,txt'))))
+     featuresets =[(find_features(rev),category) for (rev,category) in document]
+
+
+
+def commonword():#tell the first 15 common word
+        document = [(list(movie_reviews.words(fileid)), category)
+                    for category in movie_reviews.categories()
+                    for fileid in movie_reviews.fileids(category)]
+
+        random.shuffle(document)
+        all_words = []
+        for w in movie_reviews.words():
+            all_words.append(w.lower())
+        all_words = nltk.FreqDist(all_words)
+        print(all_words.most_common(15))
+
+
+
+def word():  # it will tell the first common word
+    import nltk
+    import random
+    from nltk.corpus import movie_reviews
+
+    documents = [(list(movie_reviews.words(fileid)), category)
+                 for category in movie_reviews.categories()
+                 for fileid in movie_reviews.fileids(category)]
+
+    random.shuffle(documents)
+
+    all_words = []
+
+    for w in movie_reviews.words():
+        all_words.append(w.lower())
+
+    all_words = nltk.FreqDist(all_words)
+
+    word_features = list(all_words.keys())[:3000]
+
+    def find_features(document):
+        words = set(document)
+        features = {}
+        for w in word_features:
+            features[w] = (w in words)
+
+        return features
+
+    print((find_features(movie_reviews.words('neg/cv000_29416.txt'))))
+    featuresets = [(find_features(rev), category) for (rev, category) in documents]
+
+
+
+def naive():
+    import nltk
+    import random
+    from nltk.corpus import movie_reviews
+
+    documents = [(list(movie_reviews.words(fileid)), category)
+                 for category in movie_reviews.categories()
+                 for fileid in movie_reviews.fileids(category)]
+
+    random.shuffle(documents)
+
+    all_words = []
+
+    for w in movie_reviews.words():
+        all_words.append(w.lower())
+
+    all_words = nltk.FreqDist(all_words)
+
+    word_features = list(all_words.keys())[:3000]
+
+    def find_features(document):
+        words = set(document)
+        features = {}
+        for w in word_features:
+            features[w] = (w in words)
+
+        return features
+
+    print((find_features(movie_reviews.words('neg/cv000_29416.txt'))))
+    featuresets = [(find_features(rev), category) for (rev, category) in documents]
+    # set that we'll train our classifier with
+    training_set = featuresets[:1900]
+
+    # set that we'll test against.
+    testing_set = featuresets[1900:]
+    classifier = nltk.NaiveBayesClassifier.train(training_set)
+    print("Classifier accuracy percent:", (nltk.classify.accuracy(classifier, testing_set)) * 100)
+    classifier.show_most_informative_features(15)
+
+
+naive()
+
+
